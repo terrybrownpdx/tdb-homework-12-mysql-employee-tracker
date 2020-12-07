@@ -4,8 +4,8 @@ CREATE database employee_trackerDB;
 USE employee_trackerDB;
 
 CREATE TABLE department (
- id INT PRIMARY KEY,
-name VARCHAR(30) 
+    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    dept_name VARCHAR(30)    
 );
 
 SELECT * FROM department;

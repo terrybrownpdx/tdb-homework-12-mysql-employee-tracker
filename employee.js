@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var cTable = require("console.table");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -54,15 +55,19 @@ function runSearch() {
         case "View Departments":
           viewDepartments();
           break;
+
         case "View Roles":
           viewRoles();
           break;
+
         case "View Employees":
           viewEmployees();
           break;
+
         case "Update Employee Roles":
           updateEmployeeRoles();
           break;
+
         case "exit":
           connection.end();
           break;
@@ -71,104 +76,109 @@ function runSearch() {
 }
 
 function addDepartments() {
-  inquirer
-    .prompt({
-      name: "department",
-      type: "input",
-      message: "What department would you like to add?"
+      inquirer.prompt([{
+        type: "input",
+        name: "department",
+        message: "What is the department that you want to add?"
+    }, ]).then(function(res) {
+        connection.query('INSERT INTO department (dept_name) VALUES (?)', [res.department], function(err, data) {
+            if (err) throw err;
+            console.table("Successfully Inserted");
+            runSearch();
+        })
     })
-    .then(function (answer) {
-      var query = "SELECT name, name FROM department WHERE ?";
-      connection.query(query, { department: answer.department }, function (err, res) {
-        if (err) throw err;
-        //  for (var i = 0; i < res.length; i++) {
-        //    console.log("Position: " + res[i].position + " || Song: " + res[i].song + " || Year: " + res[i].year);
-        //  }
-        //  runSearch();
-      });
-    });
+  }
+
+ function addRoles(answer) {
+      inquirer.prompt([
+        {
+            message: "enter title:",
+            type: "input",
+            name: "title"
+        }, {
+            message: "enter salary:",
+            type: "number",
+            name: "salary"
+        }, {
+            message: "enter department ID:",
+            type: "number",
+            name: "department_id"
+        }
+    ]).then(function (response) {
+        connection.query("INSERT INTO roles (title, salary, department_id) values (?, ?, ?)", [response.title, response.salary, response.department_id], function (err, data) {
+            console.table(data);
+        })
+        runSearch();
+    })  
+  }
+
+ function addEmployees(answer) {
+  inquirer.prompt([{
+          type: "input",
+          name: "firstName",
+          message: "What is the employees first name?"
+      },
+      {
+          type: "input",
+          name: "lastName",
+          message: "What is the employees last name?"
+      },
+      {
+          type: "number",
+          name: "roleId",
+          message: "What is the employees role ID"
+      },
+      {
+          type: "number",
+          name: "managerId",
+          message: "What is the employees manager's ID?"
+      }
+  ]).then(function(res) {
+      connection.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [res.firstName, res.lastName, res.roleId, res.managerId], function(err, data) {
+          if (err) throw err;
+          console.table("Successfully Inserted");
+          runSearch();
+      })
+  })
 }
 
-// function multiSearch() {
-//   var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-//   connection.query(query, function(err, res) {
-//     if (err) throw err;
-//     for (var i = 0; i < res.length; i++) {
-//       console.log(res[i].artist);
-//     }
-//     runSearch();
-//   });
-// }
+function viewDepartments() {
+  connection.query("SELECT * FROM department", function (err, data) {
+      console.table(data);
+      runSearch();
+  })
+}
 
-// function rangeSearch() {
-//   inquirer
-//     .prompt([
-//       {
-//         name: "start",
-//         type: "input",
-//         message: "Enter starting position: ",
-//         validate: function(value) {
-//           if (isNaN(value) === false) {
-//             return true;
-//           }
-//           return false;
-//         }
-//       },
-//       {
-//         name: "end",
-//         type: "input",
-//         message: "Enter ending position: ",
-//         validate: function(value) {
-//           if (isNaN(value) === false) {
-//             return true;
-//           }
-//           return false;
-//         }
-//       }
-//     ])
-//     .then(function(answer) {
-//       var query = "SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?";
-//       connection.query(query, [answer.start, answer.end], function(err, res) {
-//         if (err) throw err;
-//         for (var i = 0; i < res.length; i++) {
-//           console.log(
-//             "Position: " +
-//               res[i].position +
-//               " || Song: " +
-//               res[i].song +
-//               " || Artist: " +
-//               res[i].artist +
-//               " || Year: " +
-//               res[i].year
-//           );
-//         }
-//         runSearch();
-//       });
-//     });
-// }
+function viewRoles() {
+connection.query("SELECT * FROM role", function (err, data) {
+    console.table(data);
+    runSearch();
+})
+}
 
-// function songSearch() {
-//   inquirer
-//     .prompt({
-//       name: "song",
-//       type: "input",
-//       message: "What song would you like to look for?"
-//     })
-//     .then(function(answer) {
-//       console.log(answer.song);
-//       connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-//         if (err) throw err;
-//         console.log(
-//           "Position: " +
-//             res[0].position +
-//             " || Song: " +
-//             res[0].song +
-//             " || Artist: " +
-//             res[0].artist +
-//             " || Year: " +
-//             res[0].year
-//         );
-//         runSearch();
-//       });
-//     });
-//}
+function viewEmployees() {
+    connection.query("SELECT * FROM employee", function (err, data) {
+        console.table(data);
+        runSearch();
+    })
+}
+
+function updateEmployeeRoles() {
+    inquirer.prompt([
+        {
+            message: "which employee would you like to update? (first name)",
+            type: "input",
+            name: "name"
+        }, {
+            message: "enter the new role ID:",
+            type: "number",
+            name: "role_id"
+        }
+    ]).then(function (response) {
+        connection.query("UPDATE employee SET role_id = ? WHERE first_name = ?", [response.role_id, response.name], function (err, data) {
+            console.table(data);
+        })
+        runSearch();
+    })
+}
+

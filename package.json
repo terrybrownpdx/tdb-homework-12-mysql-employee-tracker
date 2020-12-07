@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/terrybrownpdx/tdb-homework-12-mysql-employee-tracker#readme",
   "dependencies": {
+    "console.table": "^0.10.0",
     "inquirer": "^7.3.3",
     "mysql": "^2.18.1",
     "y": "^0.3.2"
