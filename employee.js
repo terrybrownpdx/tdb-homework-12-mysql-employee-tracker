@@ -30,10 +30,10 @@ function runSearch() {
       choices: [
         "Add Departments",
         "Add Roles",
-        "Add employees",
+        "Add Employees",
         "View Departments",
         "View Roles",
-        "View employees",
+        "View Employees",
         "Update Employee Roles",
         "exit"
       ]
@@ -89,7 +89,7 @@ function addDepartments() {
     })
   }
 
- function addRoles(answer) {
+ function addRoles() {
       inquirer.prompt([
         {
             message: "enter title:",
@@ -112,29 +112,34 @@ function addDepartments() {
     })  
   }
 
- function addEmployees(answer) {
-  inquirer.prompt([{
+ function addEmployees() {
+  inquirer.prompt([
+    {
+          message: "What is the employees first name?",
           type: "input",
           name: "firstName",
-          message: "What is the employees first name?"
+          
       },
       {
+          message: "What is the employees last name?",
           type: "input",
           name: "lastName",
-          message: "What is the employees last name?"
+          
       },
       {
+          message: "What is the employees role ID", 
           type: "number",
           name: "roleId",
-          message: "What is the employees role ID"
+          
       },
       {
+          message: "What is the employees manager's ID?",
           type: "number",
           name: "managerId",
-          message: "What is the employees manager's ID?"
+          
       }
-  ]).then(function(res) {
-      connection.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [res.firstName, res.lastName, res.roleId, res.managerId], function(err, data) {
+  ]).then(function(response) {
+      connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [response.firstName, response.lastName, response.roleId, response.managerId], function(err, data) {
           if (err) throw err;
           console.table("Successfully Inserted");
           runSearch();
